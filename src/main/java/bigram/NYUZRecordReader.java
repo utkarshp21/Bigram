@@ -1,141 +1,3 @@
-//package bigram;
-//
-//import org.apache.hadoop.conf.Configuration;
-//import org.apache.hadoop.fs.FileSystem;
-//import org.apache.hadoop.fs.Path;
-//import org.apache.hadoop.io.BytesWritable;
-//import java.io.EOFException;
-//import java.io.ByteArrayOutputStream;
-//import org.apache.hadoop.io.Text;
-//import org.apache.hadoop.mapreduce.InputSplit;
-//import org.apache.hadoop.mapreduce.RecordReader;
-//import org.apache.hadoop.mapreduce.TaskAttemptContext;
-//import java.util.zip.ZipEntry;
-//import java.util.zip.ZipException;
-//import java.io.IOException;
-//
-//import org.apache.hadoop.fs.FSDataInputStream;
-//import org.apache.hadoop.mapreduce.lib.input.FileSplit;
-//
-//import java.util.zip.ZipInputStream;
-//
-///*** Custom Hadoop Record Reader : zipped file
-// *
-// * We want to produce (K,V) pairs where
-// *    K = filename inside the zip file
-// *    V = bytes corresponding to the file
-// *
-// * ***/
-//
-//
-//public class NYUZRecordReader extends RecordReader<Text, BytesWritable> {
-//    private BytesWritable currentValue;
-//    private FSDataInputStream fsin;
-//    private ZipInputStream zip;
-//    private int maxLineLength;
-//    private boolean isFinished = false;
-//    private Text currentKey;
-//    @Override
-//    public void initialize(InputSplit inputSplit, TaskAttemptContext context) throws IOException, InterruptedException {
-//        // This InputSplit is a FileInputSplit
-//
-//        FileSplit split = (FileSplit) inputSplit;
-//        Configuration conf = context.getConfiguration();
-//        Path path = split.getPath();
-//        FileSystem fs = path.getFileSystem( conf );
-//
-//        // Open the stream
-//        fsin = fs.open( path );
-//        zip = new ZipInputStream( fsin );
-//
-//        // your code here
-//        // the code here depends on what/how you define a split....
-//
-//    }
-//
-//    @Override
-//    public boolean nextKeyValue() throws IOException, InterruptedException {
-//        // your code here
-//        // the code here depends on what/how you define a split....
-//        ZipEntry entry = null;
-//        try
-//        {
-//            entry = zip.getNextEntry();
-//        }
-//        catch ( ZipException e )
-//        {
-////            if ( ZipFileInputFormat.getLenient() == false )
-//              throw e;
-//        }
-//
-//        // Sanity check
-//        if ( entry == null )
-//        {
-//            isFinished = true;
-//            return false;
-//        }
-//
-//        // Filename
-//        currentKey = new Text( entry.getName() );
-//
-//        // Read the file contents
-//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//        byte[] temp = new byte[8192];
-//        while ( true )
-//        {
-//            int bytesRead = 0;
-//            try
-//            {
-//                bytesRead = zip.read( temp, 0, 8192 );
-//            }
-//            catch ( EOFException e )
-//            {
-////                if ( ZipFileInputFormat.getLenient() == false )
-//////                    throw e;
-//                return false;
-//            }
-//            if ( bytesRead > 0 )
-//                bos.write( temp, 0, bytesRead );
-//            else
-//                break;
-//        }
-//        zip.closeEntry();
-//
-//        // Uncompressed contents
-//        currentValue = new BytesWritable( bos.toByteArray() );
-//        return true;
-//    }
-//
-//    @Override
-//    public Text getCurrentKey() throws IOException, InterruptedException {
-//        // your code here
-//        // the code here depends on what/how you define a split....
-//        return currentKey;
-//    }
-//
-//    @Override
-//    public BytesWritable getCurrentValue() throws IOException, InterruptedException {
-//        // your code here
-//        // the code here depends on what/how you define a split....
-//        return currentValue;
-//    }
-//
-//    @Override
-//    public float getProgress() throws IOException, InterruptedException {
-//        // let's ignore this one for now
-//
-//        return 0;
-//    }
-//
-//    @Override
-//    public void close() throws IOException {
-//        try { zip.close(); } catch ( Exception ignore ) { }
-//        try { fsin.close(); } catch ( Exception ignore ) { }
-//        // your code here
-//        // the code here depends on what/how you define a split....
-//    }
-//}
-
 package bigram;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
@@ -155,32 +17,21 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
-/**
- * This RecordReader implementation extracts individual files from a ZIP
- * file and hands them over to the Mapper. The "key" is the decompressed
- * file name, the "value" is the file contents.
- */
+
 public class NYUZRecordReader
         extends RecordReader<Text, BytesWritable>
 {
-    /** InputStream used to read the ZIP file from the FileSystem */
     private FSDataInputStream fsin;
 
-    /** ZIP file parser/decompresser */
     private ZipInputStream zip;
 
-    /** Uncompressed file name */
     private Text currentKey;
 
-    /** Uncompressed file contents */
     private BytesWritable currentValue;
 
-    /** Used to indicate progress */
     private boolean isFinished = false;
 
-    /**
-     * Initialise and open the ZIP file from the FileSystem
-     */
+
     @Override
     public void initialize( InputSplit inputSplit, TaskAttemptContext taskAttemptContext )
             throws IOException, InterruptedException
@@ -190,20 +41,11 @@ public class NYUZRecordReader
         Path path = split.getPath();
         FileSystem fs = path.getFileSystem( conf );
 
-        // Open the stream
         fsin = fs.open( path );
         zip = new ZipInputStream( fsin );
     }
 
-    /**
-     * This is where the magic happens, each ZipEntry is decompressed and
-     * readied for the Mapper. The contents of each file is held *in memory*
-     * in a BytesWritable object.
-     *
-     * If the ZipFileInputFormat has been set to Lenient (not the default),
-     * certain exceptions will be gracefully ignored to prevent a larger job
-     * from failing.
-     */
+
     @Override
     public boolean nextKeyValue()
             throws IOException, InterruptedException
@@ -215,21 +57,19 @@ public class NYUZRecordReader
         }
         catch ( ZipException e )
         {
-//            if ( ZipFileInputFormat.getLenient() == false )
+            if ( NYUZInputFormat.getLenient() == false )
                 throw e;
         }
 
-        // Sanity check
+
         if ( entry == null )
         {
             isFinished = true;
             return false;
         }
 
-        // Filename
         currentKey = new Text( entry.getName() );
 
-        // Read the file contents
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         byte[] temp = new byte[8192];
         while ( true )
@@ -241,8 +81,8 @@ public class NYUZRecordReader
             }
             catch ( EOFException e )
             {
-//                if ( ZipFileInputFormat.getLenient() == false )
-//                    throw e;
+                if(NYUZInputFormat.getLenient() == false)
+                    throw e;
                 return false;
             }
             if ( bytesRead > 0 )
@@ -257,9 +97,7 @@ public class NYUZRecordReader
         return true;
     }
 
-    /**
-     * Rather than calculating progress, we just keep it simple
-     */
+
     @Override
     public float getProgress()
             throws IOException, InterruptedException
@@ -267,9 +105,7 @@ public class NYUZRecordReader
         return isFinished ? 1 : 0;
     }
 
-    /**
-     * Returns the current key (name of the zipped file)
-     */
+
     @Override
     public Text getCurrentKey()
             throws IOException, InterruptedException
@@ -277,9 +113,7 @@ public class NYUZRecordReader
         return currentKey;
     }
 
-    /**
-     * Returns the current value (contents of the zipped file)
-     */
+
     @Override
     public BytesWritable getCurrentValue()
             throws IOException, InterruptedException
@@ -287,9 +121,7 @@ public class NYUZRecordReader
         return currentValue;
     }
 
-    /**
-     * Close quietly, ignoring any exceptions
-     */
+
     @Override
     public void close()
             throws IOException
