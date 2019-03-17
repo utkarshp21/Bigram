@@ -8,7 +8,7 @@ import org.apache.hadoop.mapreduce.Job;
 
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 
 public class BigramCount {
     public static void main(String[] args) throws Exception {
@@ -29,8 +29,11 @@ public class BigramCount {
         job.setOutputValueClass(IntWritable.class);
 
         //Testing
-        NYUZInputFormat.setLenient( true );
-        NYUZInputFormat.setInputPaths(job, new Path(args[0]));
+        TextInputFormat.setInputPaths(job, new Path(args[0]));
+
+        NYUZInputFormat.setInputJsonMember(job, "id");
+
+
         //Testing End
 
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
