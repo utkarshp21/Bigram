@@ -11,6 +11,7 @@ import org.apache.hadoop.mapreduce.Job;
 //import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 //import org.apache.hadoop.util.GenericOptionsParser;
 
 public class BigramCount {
@@ -18,12 +19,19 @@ public class BigramCount {
         Configuration conf = new Configuration();
 
         Job job = new Job(conf, "word count");
+//        Job job = new Job(conf);
         job.setJarByClass(BigramCount.class);
 
         job.setMapperClass(BigramMapper.class);
         job.setCombinerClass(BiagramReducer.class);
         job.setReducerClass(BiagramReducer.class);
-        job.setNumReduceTasks(2);
+//        job.setNumReduceTasks(2);
+
+
+        job.setInputFormatClass(NYUZInputFormat.class);
+        job.setOutputFormatClass(TextOutputFormat.class);
+
+        // The output files will contain "Word [TAB] Count"
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
 
