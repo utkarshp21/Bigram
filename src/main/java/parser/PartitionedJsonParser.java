@@ -1,3 +1,8 @@
+//REFERENCED CODE FROM
+//https://wikis.nyu.edu/display/NYUHPC/Big+Data+Tutorial+1%3A+MapReduce
+//https://github.com/alexholmes/json-mapreduce
+//https://stackoverflow.com/questions/26659753/processing-json-using-java-mapreduce
+
 package parser;
 
 import java.io.IOException;
@@ -7,16 +12,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import java.io.InputStreamReader;
-//import java.nio.charset.StandardCharsets;
 
-/**
- * A simple parser that can support reading JSON objects from a random point in JSON text.
- * It reads from the supplied stream (which is assumed to be positioned at any arbitrary position inside some JSON text)
- * until it find the first JSON begin-object "{".  From this point on it will keep reading JSON objects
- * until it finds one containing a member string that the user supplies.
- * <p/>
- * It is not recommended to use this with JSON text where individual JSON objects that can be large (MB's or larger).
- */
 public class PartitionedJsonParser {
 
     private final InputStream is;

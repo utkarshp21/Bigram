@@ -1,8 +1,14 @@
+//REFERENCED CODE FROM
+//https://wikis.nyu.edu/display/NYUHPC/Big+Data+Tutorial+1%3A+MapReduce
+//https://github.com/alexholmes/json-mapreduce
+//https://stackoverflow.com/questions/26659753/processing-json-using-java-mapreduce
+
 package bigram;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.CompressionCodec;
+
 import org.apache.hadoop.io.compress.CompressionCodecFactory;
 import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;

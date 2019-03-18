@@ -1,3 +1,8 @@
+//REFERENCED CODE FROM
+//https://wikis.nyu.edu/display/NYUHPC/Big+Data+Tutorial+1%3A+MapReduce
+//https://github.com/alexholmes/json-mapreduce
+//https://stackoverflow.com/questions/26659753/processing-json-using-java-mapreduce
+
 package bigram;
 import java.io.IOException;
 import org.apache.hadoop.io.IntWritable;
